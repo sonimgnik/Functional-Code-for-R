@@ -1,0 +1,112 @@
+Market Brief
+========================================================
+author: Nicholas Toscano
+date: `r format(Sys.time(), '%d %B, %Y')`
+autosize: true
+
+```{r Notes, include=FALSE}
+#For more details on authoring R presentations please visit <https://support.rstudio.com/hc/en-us/articles/200486468>.
+```
+
+```{r setup, include=FALSE}
+#Check for packages and install if not found
+
+packages = c("knitr","quantmod","ggplot2", "zoo", "xts", "imager")
+package.check <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x, dependencies = TRUE)
+    library(x, character.only = TRUE)
+  }
+})
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r set working directory, include=FALSE}
+#library("zoo")
+#library("xts")
+setwd('/Users/Nick/Desktop/stock_data/stock_data')
+getwd()
+```
+<!-- <div class="midcenter" style="margin-left:-300px; margin-top:-300px;"> -->
+<!-- <img src="bullbear.jpg"></img> -->
+<!-- </div> -->
+
+```{r title image, include=FALSE}
+
+
+# library(imager)
+# bullimg <- load.image("bull.jpg"; style=max-width:280px; float:right)
+# plot(bullimg)
+```
+
+Macro Trends
+========================================================
+
+- Major Indexes
+- Market Volatility
+- Major Commdoties
+- Industry Indexes
+
+Dow Jones
+========================================================
+```{r data import options, include=FALSE}
+#Use the following options for reading data into R from file:
+
+#1. If you have not already set a working directory in R you can list the file, like this:
+#MyData <- read.csv(file="c:/TheDataIWantToReadIn.csv", header=TRUE, sep=",")
+
+
+#2. Read data from csv file provided and omit any NA records using na.omit 
+#exrates <- na.omit(read.csv("exrates.csv", header = TRUE))
+
+#3. If you've already set a working directory in R you can list the file, like this:
+#MyData <- read.csv(file="TheDataIWantToReadIn.csv", header=TRUE, sep=",")
+
+# Review data using head(), tail(), and str()
+#head(exrates)
+#tail(exrates)
+#str(exrates)
+
+#4. If you want to imort from Yahoo web service:)
+#start <- as.Date("2018-01-01")
+start <- Sys.Date()-90
+end <- Sys.Date()
+tickers <- c("^VIX","^GSPC","^IXIC","^DJI", "GLD")
+asset.price <- NULL
+#download stock prices of four stocks through for loop
+for(ticker in tickers)
+  asset.price <- cbind(asset.price,getSymbols(ticker, from = start, to = end,auto.assign = F))
+head(asset.price) 
+```
+
+```{r plot Dow Jones,echo=FALSE,fig.height=15, fig.width=25}
+library(ggplot2)
+plot(asset.price[,"DJI.Adjusted"], main = "Dow Jones")
+```
+
+S&P 500
+========================================================
+
+```{r plot S&P 500, echo=FALSE,fig.height=15, fig.width=25}
+plot(asset.price[,"GSPC.Adjusted"], main = "S&P 500")
+```
+
+NASDAQ
+========================================================
+
+```{r plot NASDAQ, echo=FALSE,fig.height=15, fig.width=25}
+plot(asset.price[,"IXIC.Adjusted"], main = "NASDAQ")
+#plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
+
+```
+
+VIX
+========================================================
+
+
+```{r plot VIX, echo=FALSE,fig.height=15, fig.width=25}
+plot(asset.price[,"VIX.Adjusted"], main = "VIX")
+#plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
+```
+
