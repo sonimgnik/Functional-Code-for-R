@@ -44,8 +44,17 @@ Macro Trends
 ========================================================
 
 - Major Indexes
-- Market Volatility
+  - Dow jones
+  - S&P 500
+  - NASDAQ
+  
+- Market Volatility (VIX)
+
 - Major Commdoties
+  - Gold
+  - Silver
+  - BitCoin
+
 - Industry Indexes
 
 Dow Jones
@@ -104,9 +113,20 @@ plot(asset.price[,"IXIC.Adjusted"], main = "NASDAQ")
 VIX
 ========================================================
 
+The VIX Index is used as a barometer for market uncertainty, providing market participants and observers with a measure of constant, 30-day expected volatility of the broad U.S. stock market. It is also known by other names like "Fear Gauge" or "Fear Index.
 
 ```{r plot VIX, echo=FALSE,fig.height=15, fig.width=25}
 plot(asset.price[,"VIX.Adjusted"], main = "VIX")
 #plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
 ```
 
+Micro Trends
+========================================================
+
+- Gold: JNUG
+- Market Volatility
+- Major Commdoties
+- Industry Indexes
+
+Dow Jones
+========================================================
