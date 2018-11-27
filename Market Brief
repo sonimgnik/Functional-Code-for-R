@@ -1,3 +1,10 @@
+<style>
+body {
+    overflow: scroll;
+}
+</style>
+
+
 Market Brief
 ========================================================
 author: Nicholas Toscano
@@ -11,7 +18,7 @@ autosize: true
 ```{r setup, include=FALSE}
 #Check for packages and install if not found
 
-packages = c("knitr","quantmod","ggplot2", "zoo", "xts", "imager")
+packages = c("knitr","quantmod","ggplot2", "zoo", "xts", "imager", "plotly")
 package.check <- lapply(packages, FUN = function(x) {
   if (!require(x, character.only = TRUE)) {
     install.packages(x, dependencies = TRUE)
@@ -20,6 +27,7 @@ package.check <- lapply(packages, FUN = function(x) {
 })
 
 knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
 ```
 
 ```{r set working directory, include=FALSE}
@@ -28,13 +36,8 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd('/Users/Nick/Desktop/stock_data/stock_data')
 getwd()
 ```
-<!-- <div class="midcenter" style="margin-left:-300px; margin-top:-300px;"> -->
-<!-- <img src="bullbear.jpg"></img> -->
-<!-- </div> -->
 
 ```{r title image, include=FALSE}
-
-
 # library(imager)
 # bullimg <- load.image("bull.jpg"; style=max-width:280px; float:right)
 # plot(bullimg)
@@ -43,22 +46,20 @@ getwd()
 Macro Trends
 ========================================================
 
-- Major Indexes
-  - Dow jones
-  - S&P 500
-  - NASDAQ
-  
-- Market Volatility (VIX)
+  - Major Indexes
+    - Dow jones
+    - S&P 500
+    - NASDAQ
 
-- Major Commdoties
-  - Gold
-  - Silver
-  - BitCoin
+  - Market Volatility (VIX)
 
-- Industry Indexes
+  - Major Commdoties
+    - Gold
+    - Silver
+    - BitCoin
 
-Dow Jones
-========================================================
+  - Industry Indexes
+
 ```{r data import options, include=FALSE}
 #Use the following options for reading data into R from file:
 
@@ -79,19 +80,30 @@ Dow Jones
 
 #4. If you want to imort from Yahoo web service:)
 #start <- as.Date("2018-01-01")
-start <- Sys.Date()-90
+period <- 90
+start <- Sys.Date()-{90}
 end <- Sys.Date()
-tickers <- c("^VIX","^GSPC","^IXIC","^DJI", "GLD")
+tickers <- c("^VIX","^GSPC","^IXIC","^DJI", "GLD", "SLV", "GBTC", "DX=F")
 asset.price <- NULL
 #download stock prices of four stocks through for loop
 for(ticker in tickers)
-  asset.price <- cbind(asset.price,getSymbols(ticker, from = start, to = end,auto.assign = F))
+  asset.price <- na.omit(cbind(asset.price,getSymbols(ticker, from = start, to = end,auto.assign = F)))
 head(asset.price) 
 ```
 
+Dow Jones
+========================================================
 ```{r plot Dow Jones,echo=FALSE,fig.height=15, fig.width=25}
 library(ggplot2)
 plot(asset.price[,"DJI.Adjusted"], main = "Dow Jones")
+# get means for variables in data frame mydata
+# excluding missing values 
+print ("average") 
+mean(asset.price$DJI.Adjusted)
+print ("low")
+min(asset.price$DJI.Adjusted)
+print("max")
+max(asset.price$DJI.Adjusted)
 ```
 
 S&P 500
@@ -106,8 +118,6 @@ NASDAQ
 
 ```{r plot NASDAQ, echo=FALSE,fig.height=15, fig.width=25}
 plot(asset.price[,"IXIC.Adjusted"], main = "NASDAQ")
-#plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
-
 ```
 
 VIX
@@ -115,9 +125,33 @@ VIX
 
 The VIX Index is used as a barometer for market uncertainty, providing market participants and observers with a measure of constant, 30-day expected volatility of the broad U.S. stock market. It is also known by other names like "Fear Gauge" or "Fear Index.
 
+- VIX values greater than 30 are generally linked to a large volatility resulting from increased uncertainty, 
+
+- risk and investors' fear. VIX values below 20 generally correspond to stable, stress-free periods in the markets.
+
+Read more: VIX - CBOE Volatility Index Definition | Investopedia https://www.investopedia.com/terms/v/vix.asp#ixzz5Y12YY5LG  
+Cboe - http://www.cboe.com/vix
+
 ```{r plot VIX, echo=FALSE,fig.height=15, fig.width=25}
 plot(asset.price[,"VIX.Adjusted"], main = "VIX")
-#plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
+```
+
+
+Dollar
+========================================================
+
+```{r plot NASDAQ, echo=FALSE,fig.height=15, fig.width=25}
+plot(asset.price[,"DX.F.Adjusted"], main = "Dollar")
+#source: https://finance.yahoo.com/quote/DX=F?p=DX=F&.tsrc=fin-srch
+```
+
+Commodities
+========================================================
+
+```{r plot Commodities, echo=FALSE,fig.height=15, fig.width=25}
+plot(asset.price[,"GLD.Adjusted"], main = "GOLD")
+plot(asset.price[,"SLV.Adjusted"], main = "iShares Silver Trust")
+plot(asset.price[,"GBTC.Adjusted"], main = "BITCOIN")
 ```
 
 Micro Trends
