@@ -1,0 +1,93 @@
+---
+title: "Found money calculator"
+output: html_document
+---
+
+
+```{r set environments, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+getwd()
+setwd("FILE PATH")
+```
+
+```{r clean data, message=FALSE, warning=FALSE, message=FALSE, include=FALSE, paged.print=FALSE}
+#import data to data frame
+dat <- read.csv("Checking_2019.csv", header = TRUE, stringsAsFactors = FALSE)
+
+#clean date
+library ('stringr')
+dat$X.Date <- str_replace(dat$X.Date, '[.]', '-')
+dat$X.Date <- str_replace(dat$X.Date, '[.]', '-')
+dat$X.Date <- as.Date(dat$X.Date)
+colnames(dat)[colnames(dat) == 'X.Date'] <- 'Date'
+
+#remove even number rows
+#toDelete <- seq(1, nrow(dat), 2)
+#dat <- dat[ toDelete ,]
+
+dat <- na.omit(dat, cols="Date")#remove NA values
+dat <- dat[order(dat$Date),]
+rownames(dat) <- seq(length=nrow(dat)) #restart index numbering
+
+#additional cleaning
+library(dplyr)
+dat <- select (dat,-c(Account)) #drop Account
+dat$Norm<- 1 #create column for 1
+dat$Amount <- str_replace(dat$Amount, '[-]', '') #remove negavite value sign
+dat$Amount <- as.numeric(as.character(dat$Amount)) #conert from character to numeric
+dat$Amount <- str_replace(dat$Amount, '[.]', 'S') #replace . with S
+
+library(tidyr)
+dat <- separate(dat, Amount, into = c("Dollars", "Cents"), sep = "S")
+dat[is.na(dat)] = 0 #fill NA values with 0
+dat$Cents <- paste0(".", dat$Cents)
+dat <- select (dat,-c(Dollars)) #drop Dollars
+dat$Cents <- as.numeric(as.character(dat$Cents)) #conert from character to numeric
+
+#calaculate found money
+dat$Found_Money <- (dat$Norm - dat$Cents)
+
+dat[dat==0] <- NA
+dat<-dat[complete.cases(dat),]
+
+#reorder columns
+dat <- dat[c(1,3,2,4)]
+
+```
+
+```{r preview dataframe, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+#head(dat, 10) #show datarame
+```
+
+```{r calculate values, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+AnnualFoundMoney <- sum(dat[, 'Found_Money'])
+cat('The annual Found Money available for investing is', AnnualFoundMoney)
+
+library(dplyr)
+library(lubridate)
+
+SumMonth <- dat %>% group_by(Month=floor_date(Date, "month")) %>%
+   summarize(Amount=sum(Cents))
+
+MonthlySum <- sum(SumMonth[, 'Amount'])
+Check <- (AnnualFoundMoney - MonthlySum)
+CorrectedMonthlySum <- (MonthlySum + Check)
+
+SumMonth
+
+#library(DT)
+#datatable(SumMonth)
+```
+```{r graph values, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+barplot(SumMonth$Amount,
+main = "Monthly Found Money",
+xlab = "Month",
+ylab = "Dollars",
+names.arg = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+col = "blue",
+yaxp=c(0, max(SumMonth$Amount), 4),
+horiz = FALSE)
+```
+
+```{r export data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+write.csv(dat,"FILE PATH/found_money.csv", row.names = FALSE)
+```
