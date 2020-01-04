@@ -54,8 +54,8 @@ dat <- dat[c(1,3,2,4)]
 
 ```
 
-```{r preview dataframe, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-#head(dat, 10) #show datarame
+```{r preview dataframe, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+head(dat, 10) #show datarame
 ```
 
 ```{r calculate values, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -71,6 +71,8 @@ SumMonth <- dat %>% group_by(Month=floor_date(Date, "month")) %>%
 MonthlySum <- sum(SumMonth[, 'Amount'])
 Check <- (AnnualFoundMoney - MonthlySum)
 CorrectedMonthlySum <- (MonthlySum + Check)
+
+SumMonth$Amount <- floor(0.5 + SumMonth$Amount) #round values ot the nearest whole number
 
 SumMonth
 
@@ -89,5 +91,6 @@ horiz = FALSE)
 ```
 
 ```{r export data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-write.csv(dat,"FILE PATH/found_money.csv", row.names = FALSE)
+write.csv(dat,"found_money.csv", row.names = FALSE)
+write.csv(SumMonth,"Sum_Month_Investment.csv", row.names = FALSE)
 ```
